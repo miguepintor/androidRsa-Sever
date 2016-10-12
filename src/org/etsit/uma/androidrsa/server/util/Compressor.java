@@ -1,4 +1,4 @@
-package org.etsit.uma.androidrsa.server.utility;
+package org.etsit.uma.androidrsa.server.util;
 
 import java.io.File;
 import java.io.FileInputStream;
