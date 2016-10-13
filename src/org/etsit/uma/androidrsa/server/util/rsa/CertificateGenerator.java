@@ -1,7 +1,9 @@
 package org.etsit.uma.androidrsa.server.util.rsa;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -21,6 +23,7 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.io.pem.PemGenerationException;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
@@ -78,7 +81,7 @@ public class CertificateGenerator {
 				@Override
 				public PemObject generate() throws PemGenerationException {
 					try {
-						return new PemObject(cert.getType(), cert.getTBSCertificate());
+						return new PemObject(cert.getType(), cert.getEncoded());
 					} catch (CertificateEncodingException e) {
 						e.printStackTrace();
 						return null;
@@ -95,32 +98,26 @@ public class CertificateGenerator {
 		}
 	}
 
-	// private X509Certificate readCertificate(String path) throws
-	// CertificateException {
-	// String base64 = new String();
-	// try (BufferedReader in = new BufferedReader(new FileReader(path));) {
-	// String line = in.readLine();
-	// if (line.contains("-----BEGIN CERTIFICATE-----") == false) {
-	// throw new CertificateException("Invalid file");
-	// }
-	// line = line.substring(27);
-	// boolean end = false;
-	// while (!end) {
-	// if (line.contains("-----")) {
-	// end = true;
-	// base64 += line.substring(0, line.indexOf("-----"));
-	// } else {
-	// base64 += line;
-	// line = in.readLine();
-	// }
-	// }
-	// } catch (IOException ex) {
-	// ex.printStackTrace();
-	// }
-	//
-	// byte[] certifacteData = Base64.decode(base64);
-	// return X509Certificate.getInstance(certifacteData);
-	// }
+	public X509Certificate readCertificate(String path) {
+		X509Certificate certificate = null;
+		try (BufferedReader in = new BufferedReader(new FileReader(path));) {
+			String base64 = new String();
+			String line;
+			
+			while ((line = in.readLine()) != null) {
+					base64 += line;
+			}
+			
+			byte[] certifacteData = Base64.decode(base64);
+			
+			X509CertificateHolder certHolder = new X509CertificateHolder(certifacteData);
+			certificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		return certificate;
+	}
 
 	private PrivateKey readPrivateKey(String path) {
 		PrivateKey privKey = null;

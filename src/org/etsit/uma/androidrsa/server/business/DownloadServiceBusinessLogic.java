@@ -23,7 +23,7 @@ public class DownloadServiceBusinessLogic {
 	private String generatedCertificatePath;
 
 	@PostConstruct
-	public void reset() {
+	public void resolvePaths() {
 		unpackedOutputFolderPath = temporalOutputFolderPath + "/unpacked";
 		compressOutputFilePath = temporalOutputFolderPath
 				+ androidRsaApkPath.substring(androidRsaApkPath.lastIndexOf("/"));
@@ -35,9 +35,9 @@ public class DownloadServiceBusinessLogic {
 		Compressor compressor = new Compressor();
 		CertificateGenerator certGen = new CertificateGenerator();
 
-		compressor.decompressFile(androidRsaApkPath, unpackedOutputFolderPath);
+		//compressor.decompressFile(androidRsaApkPath, unpackedOutputFolderPath);
 		certGen.saveCertificate(generatedCertificatePath, certGen.generateCertificate(caPrivateKeyPath, "Mike"));
-		compressor.compressFolder(unpackedOutputFolderPath, compressOutputFilePath);
+		//compressor.compressFolder(unpackedOutputFolderPath, compressOutputFilePath);
 
 	}
 
