@@ -2,6 +2,7 @@ package org.etsit.uma.androidrsa.server.util.rsa;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,6 +11,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
@@ -32,14 +34,13 @@ import org.bouncycastle.util.io.pem.PemWriter;
 public class CertificateGenerator {
 	private static BigInteger serialNumberCounter = BigInteger.ONE;
 	private static final int RSA_KEY_SIZE = 2048;
-	private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----";
-	private static final String END_CERT = "-----END CERTIFICATE-----";
 
 	public X509Certificate generateCertificate(String caPrivateKeyPath, String name) {
 		X509Certificate newCertificate = null;
 		try {
 			PrivateKey caPrivKey = readPrivateKey(caPrivateKeyPath);
-			ContentSigner signature = new JcaContentSignerBuilder("SHA1withRSAEncryption").setProvider("BC").build(caPrivKey);
+			ContentSigner signature = new JcaContentSignerBuilder("SHA1withRSAEncryption").setProvider("BC")
+					.build(caPrivKey);
 
 			KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 			keyGen.initialize(RSA_KEY_SIZE);
@@ -61,7 +62,7 @@ public class CertificateGenerator {
 			newCertificate = jcaConverter.getCertificate(certHolder);
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			throw new RuntimeException(ex);
 		}
 
 		return newCertificate;
@@ -69,13 +70,6 @@ public class CertificateGenerator {
 
 	public void saveCertificate(String path, X509Certificate cert) {
 		try (PemWriter writer = new PemWriter(new PrintWriter(new File(path)));) {
-			// os.write("-----BEGIN CERTIFICATE-----\n".getBytes("US-ASCII"));
-			// os.write(Base64.encodeBase64(cert.getEncoded(), true));
-			// os.write("-----END CERTIFICATE-----\n".getBytes("US-ASCII"));
-			// os.close();
-
-			// write it as PEM file
-
 			// X.509 cert version
 			PemObjectGenerator generator = new PemObjectGenerator() {
 				@Override
@@ -88,55 +82,37 @@ public class CertificateGenerator {
 					}
 				}
 			};
-
 			writer.writeObject(generator);
-			writer.flush();
-			writer.close();
-
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			throw new RuntimeException(ex);
 		}
 	}
 
-	public X509Certificate readCertificate(String path) {
+	public X509Certificate readCertificate(String path)  {
 		X509Certificate certificate = null;
 		try (BufferedReader in = new BufferedReader(new FileReader(path));) {
 			String base64 = new String();
 			String line;
-			
+
 			while ((line = in.readLine()) != null) {
+				if (!line.contains("-----")) {
 					base64 += line;
+				}
 			}
-			
+
 			byte[] certifacteData = Base64.decode(base64);
-			
+
 			X509CertificateHolder certHolder = new X509CertificateHolder(certifacteData);
 			certificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			throw new RuntimeException(ex);
 		}
-		
+
 		return certificate;
 	}
 
-	private PrivateKey readPrivateKey(String path) {
+	private PrivateKey readPrivateKey(String path) throws FileNotFoundException, IOException {
 		PrivateKey privKey = null;
-
-		// try (BufferedReader br = new BufferedReader(new FileReader(path));) {
-		// String base64 = new String();
-		// String line;
-		// while ((line = br.readLine()) != null) {
-		// base64 += line;
-		// }
-		//
-		// byte[] privKeyBytes = Base64.decode(base64);
-		// PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privKeyBytes);
-		// KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		// privKey = keyFactory.generatePrivate(keySpec);
-		//
-		// } catch (Exception ex) {
-		// ex.printStackTrace();
-		// }
 
 		try (PEMParser pemParser = new PEMParser(new FileReader(path));) {
 			Object object = pemParser.readObject();
@@ -144,8 +120,6 @@ public class CertificateGenerator {
 			PEMKeyPair ukp = (PEMKeyPair) object;
 			KeyPair kp = converter.getKeyPair(ukp);
 			privKey = kp.getPrivate();
-		} catch (Exception ex) {
-			ex.printStackTrace();
 		}
 
 		return privKey;
