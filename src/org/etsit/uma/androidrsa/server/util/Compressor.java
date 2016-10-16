@@ -43,7 +43,7 @@ public class Compressor {
 			}
 
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			throw new RuntimeException(ex);
 		}
 
 	}
@@ -72,7 +72,7 @@ public class Compressor {
 				in.close();
 			}
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			throw new RuntimeException(ex);
 		}
 	}
 

@@ -40,8 +40,8 @@ public class CertificateGeneratorTest {
 
 	@Test
 	public void aNewGeneratedCertificateIsSignedByTheCaAndNotByItsOwn() throws Exception {
-		X509Certificate generatedCertificate = generator.generateCertificate(caPrivateKeyPath, "Mike");
-		X509CertificateHolder generatedCertificateHolder = new X509CertificateHolder(generatedCertificate.getEncoded());
+		RsaCertificate generatedCertificate = generator.generateCertificate(caPrivateKeyPath, "Mike");
+		X509CertificateHolder generatedCertificateHolder = new X509CertificateHolder(generatedCertificate.getX509certificate().getEncoded());
 		X509Certificate caCertificate = generator.readCertificate(caCertificatePath);
 
 		ContentVerifierProvider contentVerifierProvider = new JcaContentVerifierProviderBuilder().setProvider("BC")
@@ -50,7 +50,7 @@ public class CertificateGeneratorTest {
 		assertTrue(generatedCertificateHolder.isSignatureValid(contentVerifierProvider));
 		
 		contentVerifierProvider = new JcaContentVerifierProviderBuilder().setProvider("BC")
-				.build(generatedCertificate.getPublicKey());
+				.build(generatedCertificate.getX509certificate().getPublicKey());
 		
 		assertFalse(generatedCertificateHolder.isSignatureValid(contentVerifierProvider));
 		
@@ -58,16 +58,16 @@ public class CertificateGeneratorTest {
 
 	@Test
 	public void aNewGeneratedCertificateIsReadable() {
-		X509Certificate certificate = generator.generateCertificate(caPrivateKeyPath, "Mike");
-		generator.saveCertificate(testPath, certificate);
+		RsaCertificate certificate = generator.generateCertificate(caPrivateKeyPath, "Mike");
+		generator.save(testPath, certificate.getX509certificate());
 		X509Certificate readedCertificate = generator.readCertificate(testPath);
-		assertEquals(certificate, readedCertificate);
+		assertEquals(certificate.getX509certificate(), readedCertificate);
 	}
 
 	@Test
 	public void newGeneratedCertificateOverwritesTheOldOne() throws CertificateEncodingException {
-		generator.saveCertificate(testPath, generator.generateCertificate(caPrivateKeyPath, "Mike"));
-		generator.saveCertificate(testPath, generator.generateCertificate(caPrivateKeyPath, "Vincent"));
+		generator.save(testPath, generator.generateCertificate(caPrivateKeyPath, "Mike").getX509certificate());
+		generator.save(testPath, generator.generateCertificate(caPrivateKeyPath, "Vincent").getX509certificate());
 		X509Certificate readedCertificate = generator.readCertificate(testPath);
 		assertEquals(getCommonNameFromCertificate(readedCertificate), "Vincent");
 	}

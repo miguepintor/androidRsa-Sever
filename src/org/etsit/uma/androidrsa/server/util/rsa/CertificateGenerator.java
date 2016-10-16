@@ -11,7 +11,6 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
@@ -35,8 +34,8 @@ public class CertificateGenerator {
 	private static BigInteger serialNumberCounter = BigInteger.ONE;
 	private static final int RSA_KEY_SIZE = 2048;
 
-	public X509Certificate generateCertificate(String caPrivateKeyPath, String name) {
-		X509Certificate newCertificate = null;
+	public RsaCertificate generateCertificate(String caPrivateKeyPath, String commonName) {
+		RsaCertificate genertatedCertificate = null;
 		try {
 			PrivateKey caPrivKey = readPrivateKey(caPrivateKeyPath);
 			ContentSigner signature = new JcaContentSignerBuilder("SHA1withRSAEncryption").setProvider("BC")
@@ -53,32 +52,37 @@ public class CertificateGenerator {
 
 			X509v1CertificateBuilder certificateBuilder = new X509v1CertificateBuilder(
 					new X500Name("CN=AndroidRsa CA,O=etsit uma,C=ES"), serialNumberCounter, startDate, endDate,
-					new X500Name("CN=" + name + ",O=etsit uma,C=ES"), subPubKeyInfo);
+					new X500Name("CN=" + commonName + ",O=etsit uma,C=ES"), subPubKeyInfo);
 
 			serialNumberCounter.add(BigInteger.ONE);
 
 			X509CertificateHolder certHolder = certificateBuilder.build(signature);
 			JcaX509CertificateConverter jcaConverter = new JcaX509CertificateConverter().setProvider("BC");
-			newCertificate = jcaConverter.getCertificate(certHolder);
-
+			X509Certificate certificate = jcaConverter.getCertificate(certHolder);
+			
+			genertatedCertificate = new RsaCertificate(certificate, keyPair.getPrivate());
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
 
-		return newCertificate;
+		return genertatedCertificate;
 	}
 
-	public void saveCertificate(String path, X509Certificate cert) {
+	public void save(String path, Object obj) {
 		try (PemWriter writer = new PemWriter(new PrintWriter(new File(path)));) {
-			// X.509 cert version
 			PemObjectGenerator generator = new PemObjectGenerator() {
 				@Override
 				public PemObject generate() throws PemGenerationException {
-					try {
-						return new PemObject(cert.getType(), cert.getEncoded());
-					} catch (CertificateEncodingException e) {
-						e.printStackTrace();
-						return null;
+					if (obj instanceof X509Certificate) {
+						try {
+							return new PemObject("CERTIFICATE", ((X509Certificate) obj).getEncoded());
+						} catch (CertificateEncodingException e) {
+							throw new RuntimeException(e);
+						}
+					} else if (obj instanceof PrivateKey) {
+						return new PemObject("CERTIFICATE", ((PrivateKey) obj).getEncoded());
+					} else {
+						throw new RuntimeException("The object to save is not a X509Certificate or PrivateKey");
 					}
 				}
 			};
@@ -88,7 +92,7 @@ public class CertificateGenerator {
 		}
 	}
 
-	public X509Certificate readCertificate(String path)  {
+	public X509Certificate readCertificate(String path) {
 		X509Certificate certificate = null;
 		try (BufferedReader in = new BufferedReader(new FileReader(path));) {
 			String base64 = new String();

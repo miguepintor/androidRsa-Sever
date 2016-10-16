@@ -4,6 +4,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import org.etsit.uma.androidrsa.server.business.DownloadServiceBusinessLogic;
 
@@ -15,8 +16,8 @@ public class DownloadService {
 	
 	@GET
 	@Produces("application/xml")
-	public void download() {
-		bl.download();
+	public void download(@QueryParam("ownerName") String ownerName) {
+		bl.download(ownerName == null ? "" : ownerName);
 	}
 
 }
