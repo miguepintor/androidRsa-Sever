@@ -504,13 +504,6 @@ header .app li {
   -o-background-size: cover;
   background-size: cover;
 }
-#background-carousel .item-no3 {
-  background: url(../images/slider/slide-3.jpg) no-repeat;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
 #background-carousel .carousel .active.left {
   left:0;
   opacity:0;
@@ -598,10 +591,12 @@ section.banner-carousel {
   border-radius: 50%;
   padding: 10px;*/
   line-height: 35px;
-  font-size: 28px;
+  font-size: 60px;
   text-decoration: none;
   color: #fff;
+  text-transform:none;
 }
+
 /*.banner-carousel h2 .lg-logo:after,
 .banner h2 .lg-logo:after {
   content: "";
