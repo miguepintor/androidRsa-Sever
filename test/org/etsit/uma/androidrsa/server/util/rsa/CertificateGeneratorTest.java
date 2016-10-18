@@ -6,20 +6,17 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.security.Security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.bouncycastle.asn1.x500.RDN;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
@@ -97,7 +94,7 @@ public class CertificateGeneratorTest {
 	}
 
 	@Test
-	public void aNewGeneratedCertificateIsReadable() {
+	public void aGeneratedCertificateIsReadable() {
 		RsaCertificate certificate = generator.generateCertificate(caPrivateKeyPath, "Mike");
 		generator.save(testFilePath, certificate.getX509certificate());
 		X509Certificate readedCertificate = generator.readCertificate(testFilePath);
@@ -105,17 +102,42 @@ public class CertificateGeneratorTest {
 	}
 
 	@Test
-	public void newGeneratedCertificateOverwritesTheOldOne() throws CertificateEncodingException {
+	public void aGeneratedCertificateOverwritesTheOldOne() throws CertificateEncodingException {
 		generator.save(testFilePath, generator.generateCertificate(caPrivateKeyPath, "Mike").getX509certificate());
 		generator.save(testFilePath, generator.generateCertificate(caPrivateKeyPath, "Vincent").getX509certificate());
 		X509Certificate readedCertificate = generator.readCertificate(testFilePath);
-		assertEquals(getCommonNameFromCertificate(readedCertificate), "Vincent");
+
+		X500PrincipalHelper subject = new X500PrincipalHelper(readedCertificate.getSubjectX500Principal());
+		assertEquals(subject.getCN(), "Vincent");
 	}
 
-	private String getCommonNameFromCertificate(final X509Certificate certificate) throws CertificateEncodingException {
-		X500Name x500name = new JcaX509CertificateHolder(certificate).getSubject();
-		RDN cn = x500name.getRDNs(BCStyle.CN)[0];
-		return IETFUtils.valueToString(cn.getFirst().getValue());
+	@Test
+	public void aGeneratedCertificateHasExpectedData() {
+
+		RsaCertificate certificate = generator.generateCertificate(caPrivateKeyPath, "Mike");
+
+		X500PrincipalHelper subject = new X500PrincipalHelper(
+				certificate.getX509certificate().getSubjectX500Principal());
+
+		assertEquals(subject.getCN(), "Mike");
+		assertEquals(subject.getO(), "etsit uma");
+		assertEquals(subject.getC(), "ES");
+
+		X500PrincipalHelper issuer = new X500PrincipalHelper(certificate.getX509certificate().getIssuerX500Principal());
+
+		assertEquals(issuer.getCN(), "AndroidRsa CA");
+		assertEquals(issuer.getO(), "etsit uma");
+		assertEquals(issuer.getC(), "ES");
+
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(certificate.getX509certificate().getNotBefore());
+		int startYear = cal.get(Calendar.YEAR);
+		cal.setTime(certificate.getX509certificate().getNotAfter());
+		int endYear = cal.get(Calendar.YEAR);
+
+		assertEquals(endYear - startYear, 10);
+		assertEquals(certificate.getX509certificate().getSerialNumber(),
+				CertificateGenerator.getSerialNumberCounter().subtract(BigInteger.ONE));
 	}
 
 	@Test(expected = RuntimeException.class)

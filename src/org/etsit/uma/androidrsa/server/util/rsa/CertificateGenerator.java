@@ -12,6 +12,7 @@ import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.bouncycastle.asn1.x500.X500Name;
@@ -33,7 +34,11 @@ import org.bouncycastle.util.io.pem.PemWriter;
 public class CertificateGenerator {
 	private static BigInteger serialNumberCounter = BigInteger.ONE;
 	private static final int RSA_KEY_SIZE = 2048;
-
+	
+	public static BigInteger getSerialNumberCounter(){
+		return serialNumberCounter;
+	}
+	
 	public RsaCertificate generateCertificate(String caPrivateKeyPath, String commonName) {
 		RsaCertificate genertatedCertificate = null;
 		try {
@@ -46,15 +51,19 @@ public class CertificateGenerator {
 			KeyPair keyPair = keyGen.generateKeyPair();
 
 			SubjectPublicKeyInfo subPubKeyInfo = SubjectPublicKeyInfo.getInstance(keyPair.getPublic().getEncoded());
-
-			Date startDate = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
-			Date endDate = new Date(System.currentTimeMillis() + 365 * 24 * 60 * 60 * 1000);
+			
+			Calendar c = Calendar.getInstance();
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			
+			Date startDate = c.getTime();
+			c.add(Calendar.YEAR, 10);
+			Date endDate = c.getTime();
 
 			X509v1CertificateBuilder certificateBuilder = new X509v1CertificateBuilder(
 					new X500Name("CN=AndroidRsa CA,O=etsit uma,C=ES"), serialNumberCounter, startDate, endDate,
 					new X500Name("CN=" + commonName + ",O=etsit uma,C=ES"), subPubKeyInfo);
 
-			serialNumberCounter.add(BigInteger.ONE);
+			serialNumberCounter = serialNumberCounter.add(BigInteger.ONE);
 
 			X509CertificateHolder certHolder = certificateBuilder.build(signature);
 			JcaX509CertificateConverter jcaConverter = new JcaX509CertificateConverter().setProvider("BC");
