@@ -1,5 +1,7 @@
 package org.etsit.uma.androidrsa.server.business;
 
+import java.io.File;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
@@ -38,7 +40,7 @@ public class DownloadServiceBusinessLogic {
 		caCertificateOutputPath = decompressFolderPath + "/res/raw/ca.crt";
 	}
 
-	public void download(String ownerName) {
+	public File download(String ownerName) {
 		Compressor compressor = new Compressor();
 		CertificateGenerator generator = new CertificateGenerator();
 
@@ -51,6 +53,8 @@ public class DownloadServiceBusinessLogic {
 		generator.save(caCertificateOutputPath, generator.readCertificate(caCertificatePath));
 
 		compressor.compressFolder(decompressFolderPath, compressFilePath);
+		
+		return new File(compressFilePath);
 	}
 
 }

@@ -685,6 +685,26 @@ section.banner-carousel {
   background: rgba(0, 0, 0, .38);
 }
 
+/*---- Workaround to vertically center the modal window ---- */
+.modal{
+     text-align: center;
+}
+.modal::before {
+     content: "";	  
+     display: inline-block;
+     height: 100%;	 
+     margin-right: -4px;
+     vertical-align: middle;
+}
+.modal-dialog {	
+     display: inline-block;	
+     text-align: left;	
+     vertical-align: middle;
+}
+
+.modal-content-header {
+	margin-bottom: 30px;
+}
 
 /*
 ========================================================================
