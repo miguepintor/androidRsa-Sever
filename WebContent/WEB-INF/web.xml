@@ -11,6 +11,10 @@
 	<servlet>
 		<servlet-name>Jersey Web Application</servlet-name>
 		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+			<param-value>true</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
@@ -23,16 +27,22 @@
 		<env-entry-type>java.lang.String</env-entry-type>
 		<env-entry-value>/Users/Mike/Documents/workspace/androidRsa/bin/androidRsa.apk</env-entry-value>
 	</env-entry>
-	
+
 	<env-entry>
 		<env-entry-name>caPrivateKeyPath</env-entry-name>
 		<env-entry-type>java.lang.String</env-entry-type>
-		<env-entry-value>/Users/Mike/Desktop/AndroidRsa_CA.pem</env-entry-value>
+		<env-entry-value>/Users/Mike/Desktop/PFC/server-files/AndroidRsa_CA.pem</env-entry-value>
 	</env-entry>
-	
+
 	<env-entry>
 		<env-entry-name>caCertificatePath</env-entry-name>
 		<env-entry-type>java.lang.String</env-entry-type>
-		<env-entry-value>/Users/Mike/Desktop/AndroidRsa_CA.crt</env-entry-value>
+		<env-entry-value>/Users/Mike/Desktop/PFC/server-files/AndroidRsa_CA.crt</env-entry-value>
+	</env-entry>
+
+	<env-entry>
+		<env-entry-name>mailPropertiesPath</env-entry-name>
+		<env-entry-type>java.lang.String</env-entry-type>
+		<env-entry-value>/Users/Mike/Desktop/PFC/server-files/mail.properties</env-entry-value>
 	</env-entry>
 </web-app>

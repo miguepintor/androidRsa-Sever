@@ -1,10 +1,15 @@
 package org.etsit.uma.androidrsa.server.business;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.etsit.uma.androidrsa.server.mail.EncryptedPasswordMailRunnable;
 import org.etsit.uma.androidrsa.server.util.Compressor;
 import org.etsit.uma.androidrsa.server.util.rsa.CertificateGenerator;
 import org.etsit.uma.androidrsa.server.util.rsa.RsaCertificate;
@@ -20,6 +25,9 @@ public class DownloadServiceBusinessLogic {
 
 	@Resource(name = "caCertificatePath")
 	private String caCertificatePath;
+	
+	@Resource(name = "mailPropertiesPath")
+	private String mailPropertiesPath;
 
 	private String decompressFolderPath;
 	private String compressFilePath;
@@ -40,7 +48,7 @@ public class DownloadServiceBusinessLogic {
 		caCertificateOutputPath = decompressFolderPath + "/res/raw/ca.crt";
 	}
 
-	public File download(String ownerName) {
+	public File downloadApkAndSendPasswordByEmail(String ownerName, String email) {
 		Compressor compressor = new Compressor();
 		CertificateGenerator generator = new CertificateGenerator();
 
@@ -49,12 +57,25 @@ public class DownloadServiceBusinessLogic {
 		RsaCertificate generatedCert = generator.generateCertificate(caPrivateKeyPath, ownerName);
 
 		generator.save(generatedCertificateOutputPath, generatedCert.getX509certificate());
-		generator.save(generatedCertificatePrivateKeyOutputPath, generatedCert.getPrivateKey());
+		String encryptionPassword = generator.save(generatedCertificatePrivateKeyOutputPath, generatedCert.getPrivateKey());
 		generator.save(caCertificateOutputPath, generator.readCertificate(caCertificatePath));
 
 		compressor.compressFolder(decompressFolderPath, compressFilePath);
 		
+		sendPasswordThroughEmail(email, encryptionPassword);
+		
 		return new File(compressFilePath);
+	}
+	
+	private void sendPasswordThroughEmail(String email, String password){
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		Properties mailProperties = new Properties();
+		try {
+			mailProperties.load(new FileInputStream(mailPropertiesPath));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		executor.submit(new EncryptedPasswordMailRunnable(mailProperties, email, password));
 	}
 
 }

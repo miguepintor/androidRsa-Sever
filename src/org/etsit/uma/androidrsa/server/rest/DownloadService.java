@@ -21,8 +21,8 @@ public class DownloadService {
 
 	@GET
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public Response download(@QueryParam("ownerName") String ownerName) {
-		File apk = bl.download(ownerName == null ? "" : ownerName);
+	public Response downloadApkAndSendPasswordByEmail(@QueryParam("ownerName") String ownerName, @QueryParam("email") String email) {
+		File apk = bl.downloadApkAndSendPasswordByEmail(ownerName == null ? "" : ownerName, email);
 
 		ResponseBuilder response = Response.ok((Object) apk);
 		response.header("Content-Disposition", "attachment;filename=androidRsa.apk");

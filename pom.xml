@@ -12,12 +12,14 @@
 		<jersey.version>1.19</jersey.version>
 		<jackson.version>1.9.13</jackson.version>
 		<bouncycastle.version>1.55</bouncycastle.version>
+		<javamail.version>1.4.7</javamail.version>
+		<javamail-api.version>1.5.5</javamail-api.version>
 		<junit.version>4.11</junit.version>
 	</properties>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>test</testSourceDirectory> 
+		<testSourceDirectory>test</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -67,6 +69,11 @@
 			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-json</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>${jackson.version}</version>
@@ -75,6 +82,16 @@
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk15on</artifactId>
 			<version>${bouncycastle.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>${javamail.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>javax.mail-api</artifactId>
+			<version>${javamail-api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
