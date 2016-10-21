@@ -43,6 +43,11 @@ public class CertificateGenerator {
 	private static BigInteger serialNumberCounter = BigInteger.ONE;
 	private static final int RSA_KEY_SIZE = 2048;
 
+	// ALGORITHMS DEFINITIONS
+	private static final String CA_SIGN_ALGORITHM = "SHA1withRSAEncryption";
+	private static final String KEYPAIR_ALGORITHM = "RSA";
+	private static final String PRIVATE_KEY_ENCRYPTION_ALGORITHM = "AES-128-ECB";
+
 	public static BigInteger getSerialNumberCounter() {
 		return serialNumberCounter;
 	}
@@ -51,10 +56,10 @@ public class CertificateGenerator {
 		RsaCertificate genertatedCertificate = null;
 		try {
 			PrivateKey caPrivKey = readPrivateKey(caPrivateKeyPath, null);
-			ContentSigner signature = new JcaContentSignerBuilder("SHA1withRSAEncryption")
+			ContentSigner signature = new JcaContentSignerBuilder(CA_SIGN_ALGORITHM)
 					.setProvider(BouncyCastleProvider.PROVIDER_NAME).build(caPrivKey);
 
-			KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+			KeyPairGenerator keyGen = KeyPairGenerator.getInstance(KEYPAIR_ALGORITHM);
 			keyGen.initialize(RSA_KEY_SIZE);
 			KeyPair keyPair = keyGen.generateKeyPair();
 
@@ -109,7 +114,7 @@ public class CertificateGenerator {
 				random.nextBytes(keyBytes);
 				encryptionPassword = Base64.toBase64String(keyBytes);
 
-				PEMEncryptor encryptor = new JcePEMEncryptorBuilder("AES-128-ECB")
+				PEMEncryptor encryptor = new JcePEMEncryptorBuilder(PRIVATE_KEY_ENCRYPTION_ALGORITHM)
 						.setProvider(BouncyCastleProvider.PROVIDER_NAME).setSecureRandom(new SecureRandom())
 						.build(encryptionPassword.toCharArray());
 				generator = new JcaMiscPEMGenerator((PrivateKey) obj, encryptor);

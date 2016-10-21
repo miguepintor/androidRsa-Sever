@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.security.PrivateKey;
-import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -21,12 +20,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.PEMEncryptor;
-import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
-import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
-import org.bouncycastle.util.encoders.Base64;
 import org.junit.After;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -153,7 +148,7 @@ public class CertificateGeneratorTest {
 	}
 	
 	@Test
-	public void theEncryptedPrivateKeyIsReadable() throws FileNotFoundException, IOException {		
+	public void theEncryptedPrivateKeyIsReadable() throws FileNotFoundException, IOException {
 		RsaCertificate certificate = generator.generateCertificate(caPrivateKeyPath, "Mike");
 		String encryptionPassword = generator.save(testFilePath, certificate.getPrivateKey());
 		PrivateKey readedPrivateKey = generator.readPrivateKey(testFilePath, encryptionPassword);

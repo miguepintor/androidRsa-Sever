@@ -10,7 +10,7 @@ public class SupportMailRunnable extends MailRunnable {
 
 	public SupportMailRunnable(final Properties mailProperties, final String firstName, final String lastName,
 			final String email, final String message) {
-		super(mailProperties, mailProperties.getProperty("gmail.username"));
+		super(mailProperties, mailProperties.getProperty("mail.smtp.user"));
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;

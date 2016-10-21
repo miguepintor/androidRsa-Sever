@@ -23,7 +23,7 @@ public abstract class MailRunnable implements Runnable{
 	public void run() {
 		Session session = Session.getInstance(mailProperties, new javax.mail.Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(mailProperties.getProperty("gmail.username"), mailProperties.getProperty("gmail.password"));
+				return new PasswordAuthentication(mailProperties.getProperty("mail.smtp.user"), mailProperties.getProperty("mail.smtp.password"));
 			}
 		});
 
