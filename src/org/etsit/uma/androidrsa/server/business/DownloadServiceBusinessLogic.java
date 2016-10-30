@@ -43,7 +43,7 @@ public class DownloadServiceBusinessLogic {
 		compressFilePath = outputFolderPath + androidRsaApkPath.substring(androidRsaApkPath.lastIndexOf("/"));
 
 		generatedCertificateOutputPath = decompressFolderPath + "/res/raw/certificate.crt";
-		generatedCertificatePrivateKeyOutputPath = decompressFolderPath + "/res/raw/certificateKey.pem";
+		generatedCertificatePrivateKeyOutputPath = decompressFolderPath + "/res/raw/certificatekey.pem";
 		caCertificateOutputPath = decompressFolderPath + "/res/raw/ca.crt";
 	}
 
