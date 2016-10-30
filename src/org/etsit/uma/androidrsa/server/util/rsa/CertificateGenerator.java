@@ -41,7 +41,7 @@ import org.bouncycastle.util.io.pem.PemWriter;
 
 public class CertificateGenerator {
 	private static BigInteger serialNumberCounter = BigInteger.ONE;
-	private static final int RSA_KEY_SIZE = 2048;
+	private static final int RSA_KEY_SIZE = 1024;
 
 	// ALGORITHMS DEFINITIONS
 	private static final String CA_SIGN_ALGORITHM = "SHA1withRSAEncryption";
