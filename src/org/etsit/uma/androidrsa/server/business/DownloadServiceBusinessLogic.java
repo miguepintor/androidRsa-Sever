@@ -13,6 +13,8 @@ import org.etsit.uma.androidrsa.server.util.ThreadManager;
 import org.etsit.uma.androidrsa.server.util.rsa.CertificateGenerator;
 import org.etsit.uma.androidrsa.server.util.rsa.RsaCertificate;
 
+import com.android.apksigner.ApkSignerTool;
+
 public class DownloadServiceBusinessLogic {
 
 	// PATHS
@@ -27,6 +29,9 @@ public class DownloadServiceBusinessLogic {
 
 	@Resource(name = "mailPropertiesPath")
 	private String mailPropertiesPath;
+	
+	@Resource(name ="signerKeystorePath")
+	private String signerKeystorePath;
 
 	private String decompressFolderPath;
 	private String compressFilePath;
@@ -63,6 +68,8 @@ public class DownloadServiceBusinessLogic {
 		compressor.compressFolder(decompressFolderPath, compressFilePath);
 
 		sendPasswordThroughEmail(email, encryptionPassword);
+		
+		signApk();
 
 		return new File(compressFilePath);
 	}
@@ -75,6 +82,15 @@ public class DownloadServiceBusinessLogic {
 			throw new RuntimeException(e);
 		}
 		ThreadManager.execute(new EncryptedPasswordMailRunnable(mailProperties, email, password));
+	}
+	
+	private void signApk(){
+		String[] args = {"sign", "--ks", signerKeystorePath, "--ks-pass", "pass:androidrsa", compressFilePath};
+		try {
+			ApkSignerTool.main(args);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

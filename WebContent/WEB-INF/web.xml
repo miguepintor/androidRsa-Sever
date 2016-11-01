@@ -49,4 +49,10 @@
 		<env-entry-type>java.lang.String</env-entry-type>
 		<env-entry-value>/Users/Mike/Desktop/PFC/server-files/mail.properties</env-entry-value>
 	</env-entry>
+	
+	<env-entry>
+		<env-entry-name>signerKeystorePath</env-entry-name>
+		<env-entry-type>java.lang.String</env-entry-type>
+		<env-entry-value>/Users/Mike/Desktop/PFC/server-files/signer.keystore</env-entry-value>
+	</env-entry>
 </web-app>
