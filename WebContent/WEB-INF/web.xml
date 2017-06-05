@@ -11,21 +11,12 @@
 	<servlet>
 		<servlet-name>Jersey Web Application</servlet-name>
 		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
-		<init-param>
-			<param-name>com.sun.jersey.config.property.packages</param-name>
-			<param-value>org.etsit.uma.androidrsa.server.rest</param-value>
-		</init-param>
-		<init-param>
-			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Jersey Web Application</servlet-name>
 		<url-pattern>/api/*</url-pattern>
 	</servlet-mapping>
-
+ 
 	<env-entry>
 		<env-entry-name>androidRsaApkPath</env-entry-name>
 		<env-entry-type>java.lang.String</env-entry-type>
